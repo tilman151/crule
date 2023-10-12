@@ -1,0 +1,19 @@
+# @package _global_
+
+defaults:
+  - approach_base
+
+runner: crule.run.mmd
+
+dm:
+  _target_: rul_datasets.DomainAdaptionDataModule
+
+training:
+  approach:
+      _target_: rul_adapt.approach.ConditionalMmdApproach
+      lr: ???
+      mmd_factor: ???
+      num_mmd_kernels: ???
+      dynamic_adaptive_factor: ???
+      fuzzy_sets: ???
+      loss_type: rmse

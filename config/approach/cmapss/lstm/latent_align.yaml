@@ -1,0 +1,10 @@
+dm:
+  split_by_steps: 80
+
+training:
+  approach:
+    lr: 0.00946
+    alpha_healthy: 1.6
+    alpha_direction: 1.6
+    alpha_level: 1.6
+    alpha_fusion: 1.6

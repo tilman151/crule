@@ -1,0 +1,7 @@
+domain_disc:
+  units: ['${regressor.input_channels}', '${regressor.input_channels}', 1]
+
+training:
+  approach:
+      lr: 0.00052
+      dann_factor: 5.7

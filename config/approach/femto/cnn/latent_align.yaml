@@ -1,0 +1,10 @@
+dm:
+  split_by_max_rul: 1
+
+training:
+  approach:
+    lr: 0.00546
+    alpha_healthy: 3.2
+    alpha_direction: 3.2
+    alpha_level: 3.2
+    alpha_fusion: 3.2

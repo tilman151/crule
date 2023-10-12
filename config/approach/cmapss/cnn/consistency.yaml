@@ -1,0 +1,7 @@
+domain_disc:
+  units: ["${regressor.input_channels}", 1]
+
+training:
+  approach:
+      lr: 0.0081
+      consistency_factor: 0.5

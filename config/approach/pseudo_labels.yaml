@@ -1,0 +1,29 @@
+# @package _global_
+
+defaults:
+  - approach_base
+  - baseline/baseline_base@pretraining.approach
+
+runner: crule.run.pseudo_labels
+
+dm:
+  _target_: rul_datasets.DomainAdaptionDataModule
+
+pretraining:
+  approach: ???
+
+training:
+  trainer:
+    callbacks:
+      - _target_: pytorch_lightning.callbacks.ModelCheckpoint
+        monitor: val/loss
+        mode: min
+        save_top_k: 1
+      - _target_: pytorch_lightning.callbacks.EarlyStopping
+        monitor: val/loss
+        mode: min
+        patience: 20
+  approach:
+      _target_: rul_adapt.approach.SupervisedApproach
+      lr: ???
+      loss_type: rmse

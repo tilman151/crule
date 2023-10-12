@@ -1,0 +1,11 @@
+defaults:
+  - _self_
+  - ../fuzzy_sets@training.approach
+
+training:
+  approach:
+      lr: 0.00012
+      mmd_factor: 0.1
+      num_mmd_kernels: 1
+      dynamic_adaptive_factor: 0.2
+      fuzzy_sets: ???

@@ -1,0 +1,22 @@
+# @package _global_
+
+defaults:
+  - approach_base
+
+runner: crule.run.dann
+
+dm:
+  _target_: rul_datasets.DomainAdaptionDataModule
+
+domain_disc:
+  _target_: rul_adapt.model.FullyConnectedHead
+  input_channels: ${feature_extractor.fc_units}
+  units: ???
+  act_func_on_last_layer: false
+
+training:
+  approach:
+      _target_: rul_adapt.approach.DannApproach
+      lr: ???
+      dann_factor: ???
+      loss_type: rmse
