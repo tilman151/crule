@@ -1,5 +1,7 @@
 import json
 import os.path
+from concurrent.futures import ThreadPoolExecutor
+from functools import partial
 from typing import Tuple, Optional, Dict, Any, List
 
 import networkx as nx  # type: ignore[import]
@@ -58,10 +60,12 @@ def load_runs(
 ) -> pd.DataFrame:
     wandb_api = wandb.Api()
     runs = wandb_api.runs(path, filters={"tags": {"$nin": exclude_tags}})
+    executor = ThreadPoolExecutor(max_workers=10)
+    __process_run = partial(_process_run, with_epoch_time=with_epoch_time)
     processed_runs = []
-    for run in tqdm(runs, unit="run"):
-        if (processed_run := _process_run(run, with_epoch_time)) is not None:
-            processed_runs.append(processed_run)
+    for run in tqdm(executor.map(__process_run, runs), unit="run", total=len(runs)):
+        if run is not None:
+            processed_runs.append(run)
     df = pd.DataFrame.from_records(processed_runs)
 
     return df
