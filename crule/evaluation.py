@@ -2,14 +2,14 @@ import json
 import os.path
 from typing import Tuple, Optional, Dict, Any, List
 
-import networkx as nx
+import networkx as nx  # type: ignore[import]
 import pandas as pd
-import scipy
-import scikit_posthocs as sp
+import scipy  # type: ignore[import]
+import scikit_posthocs as sp  # type: ignore[import]
 import wandb
 import tempfile
 
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt  # type: ignore[import]
 from tqdm import tqdm
 
 
@@ -24,7 +24,7 @@ def get_best_tune_run(run_path: str) -> Dict[str, Any]:
     """
     table = load_trials_table(run_path)
     performances = trials2performances(table)
-    avg_ranks, significances = friedman_nemenyi(performances)
+    avg_ranks, _ = friedman_nemenyi(performances)
     best_trial_id = avg_ranks.idxmin()
     best_trial = table.loc[best_trial_id][
         [c for c in table.columns if c.startswith("config/")]
@@ -116,7 +116,7 @@ def trials2performances(table: pd.DataFrame) -> pd.DataFrame:
 
 def friedman_nemenyi(
     performance: pd.DataFrame, p: float = 0.05
-) -> Tuple[Optional[pd.DataFrame], Optional[pd.DataFrame]]:
+) -> Tuple[pd.Series, Optional[pd.DataFrame]]:
     """
     Friedman-Nemenyi test for multiple comparison of algorithms.
 

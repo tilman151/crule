@@ -108,9 +108,7 @@ def run_training(config, base_overrides, fds):
             run_config = OmegaConf.to_container(
                 run_config, resolve=True, throw_on_missing=True
             )
-            runner = utils.str2callable(
-                run_config["runner"], restriction="crule.run"
-            )
+            runner = utils.str2callable(run_config["runner"], restriction="crule.run")
             run_result = runner(run_config)
             results[f"rmse_{source_fd}_{target_fd}"] = run_result
 

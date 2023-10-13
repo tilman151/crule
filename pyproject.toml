@@ -29,6 +29,8 @@ networkx = "^3.1"
 jupyter = "^1.0.0"
 matplotlib = "^3.7.0"
 tensorboard = "^2.11.0"
+pandas-stubs = "^2.0.3"
+types-tqdm = "^4.66.0.2"
 
 [tool.poetry.group.dev.dependencies]
 black = {extras = ["d"], version = "^22.8.0"}
