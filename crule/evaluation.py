@@ -53,40 +53,50 @@ def load_trials_table(run_path: str) -> pd.DataFrame:
     return table
 
 
-def load_runs(path: str, exclude_tags: Optional[List[str]] = None) -> pd.DataFrame:
+def load_runs(
+    path: str, exclude_tags: Optional[List[str]] = None, with_epoch_time: bool = False
+) -> pd.DataFrame:
     wandb_api = wandb.Api()
     runs = wandb_api.runs(path, filters={"tags": {"$nin": exclude_tags}})
     processed_runs = []
     for run in tqdm(runs, unit="run"):
-        if (processed_run := _process_run(run)) is not None:
+        if (processed_run := _process_run(run, with_epoch_time)) is not None:
             processed_runs.append(processed_run)
     df = pd.DataFrame.from_records(processed_runs)
 
     return df
 
 
-def _process_run(run):
-    config = run._attrs["config"]
-    tags = run._attrs["tags"]
-    if run.state == "finished":
-        processed_run = {
-            "path": "/".join(run.path),
-            "approach": config["approach"],
-            "replication_group": run.group,
-            "source": config["fd_source"],
-            "target": config["fd_target"],
-            "dataset": _parse_dataset(tags),
-            "backbone": _parse_backbone(tags),
-            "adaption_mode": _parse_adaption_mode(tags),
+def _process_run(
+    run: wandb.apis.public.Run, with_epoch_time: bool
+) -> Optional[Dict[str, Any]]:
+    if run.state != "finished":
+        return None
+
+    processed_run = {
+        "path": "/".join(run.path),
+        "approach": run.config["approach"],
+        "replication_group": run.group,
+        "source": run.config["fd_source"],
+        "target": run.config["fd_target"],
+        "dataset": _parse_dataset(run.tags),
+        "backbone": _parse_backbone(run.tags),
+        "adaption_mode": _parse_adaption_mode(run.tags),
+    }
+    test_metrics = {k: v for k, v in run.summary.items() if k.startswith("test")}
+    if not test_metrics:
+        test_metrics = {
+            k: v for k, v in run.history().iloc[-1].items() if k.startswith("test")
         }
-        test_metrics = {k: v for k, v in run.summary.items() if k.startswith("test")}
-        if not test_metrics:
-            test_metrics = {
-                k: v for k, v in run.history().iloc[-1].items() if k.startswith("test")
-            }
         processed_run.update(test_metrics)
-    else:
-        processed_run = None
+    if with_epoch_time:
+        val_history = run.history(
+            keys=["_timestamp", "epoch", "val/target/rmse/dataloader_idx_1"]
+        )
+        if val_history.empty:  # for no adaption runs
+            val_history = run.history(keys=["_timestamp", "epoch", "val/loss"])
+        epoch_time = val_history.groupby("epoch").max()["_timestamp"].diff().mean()
+        processed_run["epoch_time"] = epoch_time
 
     return processed_run
 

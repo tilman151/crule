@@ -68,7 +68,9 @@ def test_critical_difference_plot():
 
 @pytest.mark.integration
 def test_load_runs():
-    runs = load_runs("rul-adapt/benchmark", exclude_tags=["pretraining"])
+    runs = load_runs(
+        "rul-adapt/benchmark", exclude_tags=["pretraining"], with_epoch_time=True
+    )
 
     assert isinstance(runs, pd.DataFrame)
     assert (
@@ -86,6 +88,7 @@ def test_load_runs():
                 "test/target/score/dataloader_idx_1",
                 "test/source/rmse/dataloader_idx_0",
                 "test/source/score/dataloader_idx_0",
+                "epoch_time",
             }
         )
         == set()
