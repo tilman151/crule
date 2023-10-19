@@ -92,7 +92,7 @@ def _process_run(
         test_metrics = {
             k: v for k, v in run.history().iloc[-1].items() if k.startswith("test")
         }
-        processed_run.update(test_metrics)
+    processed_run.update(test_metrics)
     if with_epoch_time:
         val_history = run.history(
             keys=["_timestamp", "epoch", "val/target/rmse/dataloader_idx_1"]
