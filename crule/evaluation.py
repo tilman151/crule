@@ -162,12 +162,15 @@ def plot_critical_difference(
     avg_ranks: pd.Series,
     pairwise_significance: pd.DataFrame,
     annotation_ratio: float = 0.5,
+    fig: Optional[plt.Figure] = None,
+    highlight: Optional[str] = None,
     **kwargs,
 ) -> plt.Figure:
-    fig: plt.Figure = plt.figure(**kwargs)
+    if fig is None:
+        fig: plt.Figure = plt.figure(**kwargs)
 
     ax: plt.Axes = fig.gca()
-    _annotate_ranks(ax, avg_ranks, annotation_ratio)
+    _annotate_ranks(ax, avg_ranks, annotation_ratio, highlight)
     _connect_cliques(ax, avg_ranks, pairwise_significance, annotation_ratio)
 
     # right-to-left x-axis on top
@@ -189,11 +192,17 @@ def plot_critical_difference(
     return fig
 
 
-def _annotate_ranks(ax, avg_ranks, ratio):
-    arrowprops = dict(arrowstyle="-", connectionstyle="angle,angleA=0,angleB=90")
+def _annotate_ranks(ax, avg_ranks, ratio, highlight):
     min_x, max_x = avg_ranks.min() - 0.25, avg_ranks.max() + 0.25
     for i, (approach, rank) in enumerate(avg_ranks.sort_values().items()):
         text_pos = _get_text_pos(i, len(avg_ranks), min_x, max_x, ratio)
+        arrowprops = dict(arrowstyle="-", connectionstyle="angle,angleA=0,angleB=90")
+        if approach == highlight:
+            arrowprops["lw"] = 2.0
+            arrowprops["color"] = "tab:orange"
+            zorder = 4
+        else:
+            zorder = 3
         ax.annotate(
             approach,
             xy=(rank, 0.0),
@@ -201,6 +210,7 @@ def _annotate_ranks(ax, avg_ranks, ratio):
             ha="left" if text_pos[0] == min_x else "right",
             va="bottom",
             arrowprops=arrowprops,
+            zorder=zorder,
         )
 
 
@@ -218,7 +228,7 @@ def _connect_cliques(ax, avg_ranks, pairwise_significance, annotation_ratio):
     offset = 0.1 * min_text_pos
     for i, (max_rank, min_rank) in enumerate(cliques):
         y_pos = offset + 0.8 * min_text_pos * i / num_cliques
-        ax.hlines(y_pos, min_rank, max_rank, color="black", linewidth=4)
+        ax.hlines(y_pos, min_rank, max_rank, color="black", linewidth=4, zorder=4)
 
 
 def _get_text_pos(i, max_items, min_x, max_x, ratio=0.5):
