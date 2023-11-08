@@ -167,7 +167,7 @@ def plot_critical_difference(
     **kwargs,
 ) -> plt.Figure:
     if fig is None:
-        fig: plt.Figure = plt.figure(**kwargs)
+        fig = plt.figure(**kwargs)
 
     ax: plt.Axes = fig.gca()
     _annotate_ranks(ax, avg_ranks, annotation_ratio, highlight)
