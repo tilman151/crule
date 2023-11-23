@@ -93,6 +93,14 @@ def _process_run(
             k: v for k, v in run.history().iloc[-1].items() if k.startswith("test")
         }
     processed_run.update(test_metrics)
+    val_metrics = {
+        "validation": v["best"]
+        for k, v in run.summary.items()
+        if k.startswith("val")
+        and isinstance(v, wandb.old.summary.SummarySubDict)
+        and "best" in v
+    }
+    processed_run.update(val_metrics)
     if with_epoch_time:
         val_history = run.history(
             keys=["_timestamp", "epoch", "val/target/rmse/dataloader_idx_1"]

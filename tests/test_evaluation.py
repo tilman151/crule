@@ -89,6 +89,7 @@ def test_load_runs():
                 "test/source/rmse/dataloader_idx_0",
                 "test/source/score/dataloader_idx_0",
                 "epoch_time",
+                "validation",
             }
         )
         == set()
