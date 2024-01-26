@@ -24,6 +24,7 @@ class XjtuSyWindowExtractor:
         self.lower_window_size = lower_window_size
 
     def __call__(self, features, targets):
+        features = features.astype(np.float16)
         num_slices = features.shape[1] // self.lower_window_size
         num_features = features.shape[-1]
         cutoff = num_slices * self.lower_window_size
@@ -44,8 +45,8 @@ class XjtuSyWindowExtractor:
             )
 
         num_frames = seq.shape[0] - self._cutoff(window_size, dilation)
-        window_idx = np.arange(window_size)[None, :] * dilation
-        window_idx = window_idx + np.arange(num_frames)[:, None]
+        window_idx = np.arange(window_size, dtype=np.uint16)[None, :] * dilation
+        window_idx = window_idx + np.arange(num_frames, dtype=np.uint16)[:, None]
         windows = seq[window_idx]
 
         return windows
