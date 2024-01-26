@@ -53,3 +53,9 @@ class XjtuSyWindowExtractor:
 
     def _cutoff(self, window_size, dilation):
         return (window_size - 1) * dilation
+
+    def __repr__(self):
+        return (
+            f"XjtuSyWindowExtractor(upper_window_size={self.upper_window_size}, "
+            f"lower_window_size={self.lower_window_size})"
+        )

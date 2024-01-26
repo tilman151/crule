@@ -7,10 +7,9 @@ from typing import Optional
 import hydra.utils
 import pytorch_lightning as pl
 import ray
-from ray import tune
-
 import rul_adapt
 import wandb
+from ray import tune
 
 from crule.run.utils import XjtuSyWindowExtractor
 
@@ -59,7 +58,7 @@ COMMON_SEARCH_SPACE = {
     "evaluate_degraded_only": True,
     "lr": tune.qloguniform(1e-5, 1e-2, 1e-5),  # quantized log uniform
     "lower_window_size": 2560,
-    "upper_window_size": tune.choice([5, 10, 20, 30]),
+    "upper_window_size": tune.choice([5]),
 }
 LOWER_CNN_SEARCH_SPACE = {
     "_target_": "rul_adapt.model.CnnExtractor",
@@ -159,7 +158,7 @@ def tune_backbone(
         metric="avg_rmse",  # monitor this metric
         mode="min",  # minimize the metric
         num_samples=100,
-        resources_per_trial=resources if gpu else {"cpu": 4},
+        resources_per_trial=resources if gpu else {"cpu": 16},
         scheduler=scheduler,
         config=search_space,
         progress_reporter=reporter,
@@ -182,7 +181,7 @@ def run_training(config, source_config, fds, sweep_uuid, entity, project, gpu, f
     trial_uuid = uuid.uuid4()
     results = []
     for fd in fds:
-        source_config["reader"]["fd"] = fd
+        source_config["reader"]["fd"] = 3
         if fttp is not None:
             source_config["reader"]["first_time_to_predict"] = fttp[fd]
         dm = hydra.utils.instantiate(
