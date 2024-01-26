@@ -3989,13 +3989,13 @@ pyasn1 = ">=0.1.3"
 
 [[package]]
 name = "rul-adapt"
-version = "0.5.0"
+version = "0.5.1"
 description = "A collection of unsupervised domain adaption approaches for RUL estimation."
 optional = false
 python-versions = ">=3.8,<4.0"
 files = [
-    {file = "rul_adapt-0.5.0-py3-none-any.whl", hash = "sha256:0c322395df94a7465f83c59e08b9adf14e09697cae4c651c059cda4ba2ef4763"},
-    {file = "rul_adapt-0.5.0.tar.gz", hash = "sha256:6248e1686a33aa517973090ebb13d18401fccfed6597bd8dc7137e2008134c30"},
+    {file = "rul_adapt-0.5.1-py3-none-any.whl", hash = "sha256:6b1e1f0309c133d77a6c09bd15a20b6c3d3de9fd88c4fddc385efa67d2f0e54d"},
+    {file = "rul_adapt-0.5.1.tar.gz", hash = "sha256:cc652929d34729c9e6c648d2a102044426ccb9f064277ac8d8e0eb085ea32a19"},
 ]
 
 [package.dependencies]
@@ -5104,4 +5104,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "6cbe0ccf0d8cc2da8cf91ce133a6443029fd3dabe1919453b49fe9442d10c542"
+content-hash = "54aa0d9a7623ca7ae788d08b8b78c0732e2494f86dd82ad271a9b78f243ff554"
