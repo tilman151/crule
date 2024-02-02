@@ -4008,13 +4008,13 @@ tqdm = ">=4.62.2,<5.0.0"
 
 [[package]]
 name = "rul-datasets"
-version = "0.14.1"
+version = "0.15.0"
 description = "A collection of datasets for RUL estimation as Lightning Data Modules."
 optional = false
 python-versions = ">=3.8,<4.0"
 files = [
-    {file = "rul_datasets-0.14.1-py3-none-any.whl", hash = "sha256:626172ff3004cf45befe75e05bcd195728d33d829ccb362880363494ece2185a"},
-    {file = "rul_datasets-0.14.1.tar.gz", hash = "sha256:c677149790a1aa37255c18bd8defaa82bffd2e6e19d8123678550272913b466f"},
+    {file = "rul_datasets-0.15.0-py3-none-any.whl", hash = "sha256:11cdc9f635d5c51dab6ef7176271cc89f4bcf3981cd98c32eea40562e0c38ead"},
+    {file = "rul_datasets-0.15.0.tar.gz", hash = "sha256:bf020caf23db9319e1639bd51fc54a77f871449f216da817da9f5a007170e89d"},
 ]
 
 [package.dependencies]
@@ -5104,4 +5104,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "54aa0d9a7623ca7ae788d08b8b78c0732e2494f86dd82ad271a9b78f243ff554"
+content-hash = "58bfd15014da8df4a28626a9f3392772b85e5563e8bf9fadea2fee09ab1f2e0b"
