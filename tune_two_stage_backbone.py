@@ -58,7 +58,7 @@ COMMON_SEARCH_SPACE = {
     "evaluate_degraded_only": True,
     "lr": tune.qloguniform(1e-5, 1e-2, 1e-5),  # quantized log uniform
     "lower_window_size": 2560,
-    "upper_window_size": tune.choice([5]),
+    "upper_window_size": tune.choice([5, 10, 20]),
 }
 LOWER_CNN_SEARCH_SPACE = {
     "_target_": "rul_adapt.model.CnnExtractor",
@@ -181,7 +181,7 @@ def run_training(config, source_config, fds, sweep_uuid, entity, project, gpu, f
     trial_uuid = uuid.uuid4()
     results = []
     for fd in fds:
-        source_config["reader"]["fd"] = 3
+        source_config["reader"]["fd"] = fd
         if fttp is not None:
             source_config["reader"]["first_time_to_predict"] = fttp[fd]
         dm = hydra.utils.instantiate(
