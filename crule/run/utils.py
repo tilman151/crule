@@ -19,24 +19,28 @@ class XjtuSyExtractor:
 
 
 class XjtuSyWindowExtractor:
-    def __init__(self, upper_window_size=10, lower_window_size=2560):
-        self.upper_window_size = upper_window_size
-        self.lower_window_size = lower_window_size
+    def __init__(self, upper_window=10, lower_window=2560):
+        self.upper_window = upper_window
+        self.lower_window = lower_window
 
     def __call__(self, features, targets):
-        features = features.astype(np.float16)
-        num_slices = features.shape[1] // self.lower_window_size
-        num_features = features.shape[-1]
-        window_shape = (self.upper_window_size, self.lower_window_size, num_features)
-        features = np.lib.stride_tricks.sliding_window_view(features, window_shape)
-        features = features[:, :: self.lower_window_size]  # tumbling over lower windows
-        window_cutoff = (self.upper_window_size - 1) * num_slices
+        num_channels = features.shape[-1]
+        num_slices = features.shape[1] // self.lower_window
+        last_idx = num_slices * self.lower_window
+        reshaped = features[:, :last_idx].reshape(-1, self.lower_window, num_channels)
+        reshaped = np.pad(reshaped, ((0, num_slices - 1), (0, 0), (0, 0)), mode="empty")
+
+        window_shape = (self.upper_window * num_slices, self.lower_window, num_channels)
+        features = np.lib.stride_tricks.sliding_window_view(reshaped, window_shape)
+        features = features[:, 0, 0, ::num_slices]
+
+        window_cutoff = (self.upper_window - 1) * num_slices
         targets = targets.repeat(num_slices)[window_cutoff:]
 
         return features, targets
 
     def __repr__(self):
         return (
-            f"XjtuSyWindowExtractor(upper_window_size={self.upper_window_size}, "
-            f"lower_window_size={self.lower_window_size})"
+            f"XjtuSyWindowExtractor(upper_window={self.upper_window}, "
+            f"lower_window={self.lower_window})"
         )
