@@ -1,4 +1,5 @@
 import functools
+import os
 import random
 import uuid
 from datetime import datetime
@@ -98,11 +99,13 @@ def tune_backbone(
     entity: str,
     project: str,
     sweep_name: Optional[str],
-    save_dir: str,
+    save_dir: Optional[str],
 ):
     sweep_uuid = (
         str(uuid.uuid4()) if sweep_name is None else f"{sweep_name}-{datetime.now()}"
     )
+    save_dir = save_dir or os.path.join("./", sweep_uuid)
+    save_dir = f"file://{os.path.abspath(save_dir)}"
     search_space = {
         **COMMON_SEARCH_SPACE,
         "model": {
@@ -152,7 +155,6 @@ def tune_backbone(
         project=project,
         gpu=gpu,
         fttp=fttp,
-        save_dir=save_dir,
     )
     analysis = tune.run(
         tune_func,
@@ -165,6 +167,7 @@ def tune_backbone(
         config=search_space,
         progress_reporter=reporter,
         fail_fast=True,  # stop on first error
+        storage_path=save_dir,
     )
 
     wandb.init(
@@ -179,9 +182,7 @@ def tune_backbone(
     print("Best hyperparameters found were: ", analysis.best_config)
 
 
-def run_training(
-    config, source_config, fds, sweep_uuid, entity, project, gpu, fttp, save_dir
-):
+def run_training(config, source_config, fds, sweep_uuid, entity, project, gpu, fttp):
     trial_uuid = uuid.uuid4()
     results = []
     for fd in fds:
@@ -214,13 +215,12 @@ def run_training(
             entity=entity,
             group=str(trial_uuid),
             tags=[sweep_uuid],
-            save_dir=save_dir,
         )
         logger.experiment.define_metric("val/loss", summary="best", goal="minimize")
         callbacks = [
             pl.callbacks.EarlyStopping(monitor="val/loss", patience=20),
             pl.callbacks.ModelCheckpoint(
-                monitor="val/loss", save_top_k=1, dirpath=save_dir
+                monitor="val/loss", save_top_k=1, dirpath="./checkpoints"
             ),
         ]
         trainer = pl.Trainer(
@@ -252,7 +252,7 @@ if __name__ == "__main__":
     parser.add_argument("--entity", type=str, default="rul-adapt")
     parser.add_argument("--project", type=str, default="backbone-tuning")
     parser.add_argument("--sweep_name", type=str, default=None)
-    parser.add_argument("--save_dir", type=str, default=".")
+    parser.add_argument("--save-dir", type=str, default=None)
     opt = parser.parse_args()
 
     ray.init(log_to_driver=False)
