@@ -98,6 +98,7 @@ def tune_backbone(
     entity: str,
     project: str,
     sweep_name: Optional[str],
+    save_dir: str,
 ):
     sweep_uuid = (
         str(uuid.uuid4()) if sweep_name is None else f"{sweep_name}-{datetime.now()}"
@@ -151,6 +152,7 @@ def tune_backbone(
         project=project,
         gpu=gpu,
         fttp=fttp,
+        save_dir=save_dir,
     )
     analysis = tune.run(
         tune_func,
@@ -177,7 +179,9 @@ def tune_backbone(
     print("Best hyperparameters found were: ", analysis.best_config)
 
 
-def run_training(config, source_config, fds, sweep_uuid, entity, project, gpu, fttp):
+def run_training(
+    config, source_config, fds, sweep_uuid, entity, project, gpu, fttp, save_dir
+):
     trial_uuid = uuid.uuid4()
     results = []
     for fd in fds:
@@ -210,11 +214,14 @@ def run_training(config, source_config, fds, sweep_uuid, entity, project, gpu, f
             entity=entity,
             group=str(trial_uuid),
             tags=[sweep_uuid],
+            save_dir=save_dir,
         )
         logger.experiment.define_metric("val/loss", summary="best", goal="minimize")
         callbacks = [
             pl.callbacks.EarlyStopping(monitor="val/loss", patience=20),
-            pl.callbacks.ModelCheckpoint(monitor="val/loss", save_top_k=1),
+            pl.callbacks.ModelCheckpoint(
+                monitor="val/loss", save_top_k=1, dirpath=save_dir
+            ),
         ]
         trainer = pl.Trainer(
             accelerator="gpu" if gpu else "cpu",
@@ -245,7 +252,10 @@ if __name__ == "__main__":
     parser.add_argument("--entity", type=str, default="rul-adapt")
     parser.add_argument("--project", type=str, default="backbone-tuning")
     parser.add_argument("--sweep_name", type=str, default=None)
+    parser.add_argument("--save_dir", type=str, default=".")
     opt = parser.parse_args()
 
     ray.init(log_to_driver=False)
-    tune_backbone(opt.dataset, opt.gpu, opt.entity, opt.project, opt.sweep_name)
+    tune_backbone(
+        opt.dataset, opt.gpu, opt.entity, opt.project, opt.sweep_name, opt.save_dir
+    )
