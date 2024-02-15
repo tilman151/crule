@@ -1,5 +1,7 @@
 from typing import Dict, Any
 
+import pytorch_lightning
+
 from crule.run import common
 
 
@@ -47,9 +49,7 @@ def supervised(config: Dict[str, Any]):
         val_dataloaders=dm.source.val_dataloader(),
     )
     if config["test"]:
-        result = trainer.test(
-            ckpt_path="best", test_dataloaders=dm.source.test_dataloader()
-        )
+        result = trainer.test(ckpt_path="best", dataloaders=dm.source.test_dataloader())
     else:
         result = trainer.checkpoint_callback.best_model_score.item()
 
