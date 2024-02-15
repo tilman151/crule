@@ -1,0 +1,21 @@
+defaults:
+  - _self_
+  - /${dataset}/two_stage@_here_
+
+_target_: crule.run.utils.TwoStageWrapper
+fc_units: ${feature_extractor.upper_stage.fc_units}
+lower_stage:
+  _target_: rul_adapt.model.CnnExtractor
+  input_channels: ???
+  units: ???
+  kernel_size: ???
+  fc_units: ???
+  dropout: ???
+  seq_len: ???
+upper_stage:
+  _target_: rul_adapt.model.CnnExtractor
+  input_channels: ???
+  units: ???
+  fc_units: ???
+  dropout: ???
+  seq_len: ???

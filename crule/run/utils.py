@@ -1,6 +1,9 @@
-from typing import Tuple
+from typing import Tuple, Any
 
 import numpy as np
+import torch
+from rul_adapt.model import TwoStageExtractor
+from torch import nn
 
 
 class XjtuSyExtractor:
@@ -44,3 +47,31 @@ class XjtuSyWindowExtractor:
             f"XjtuSyWindowExtractor(upper_window={self.upper_window}, "
             f"lower_window={self.lower_window})"
         )
+
+
+class TwoStageWrapper(nn.Module):
+    """
+    Wrapper for TwoStageExtractor to ignore any additional kwargs.
+
+    This is needed so that the hydra config can contain additional keys that are
+    needed for reference elsewhere.
+    """
+
+    def __init__(
+        self, lower_stage: nn.Module, upper_stage: nn.Module, **_kwargs: Any
+    ) -> None:
+        """
+        Create a new TwoStageExtractor but ignore any additional kwargs.
+
+        :param lower_stage: the lower stage extractor
+        :param upper_stage: the upper stage extractor
+        :param _kwargs: ignored kwargs
+        """
+        super().__init__()
+        self.lower_stage = lower_stage
+        self.upper_stage = upper_stage
+        self._kwargs = _kwargs  # save as member to be compatible with checkpointing
+        self._wrapped = TwoStageExtractor(lower_stage, upper_stage)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self._wrapped(x)

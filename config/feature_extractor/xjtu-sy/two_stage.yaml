@@ -1,0 +1,16 @@
+lower_stage:
+  input_channels: 2
+  seq_len: 2560
+  kernel_size: 5
+  dropout: 0.2
+  units: [ 16, 16, 16, 16, 16, 16, 16, 16, 16 ]
+  fc_units: 16
+  dilation: 1
+  stride: 2
+upper_stage:
+  input_channels: 16
+  kernel_size: 3
+  seq_len: 20
+  dropout: 0.2
+  units: [ 16, 16, 16, 16 ]
+  fc_units: 128
