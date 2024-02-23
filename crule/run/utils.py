@@ -44,5 +44,11 @@ class NcmapssAverageExtractor:
                 mode="constant",
                 constant_values=self.padding_value,
             )
+            targets = np.pad(
+                targets,
+                (self.window_size - num_samples, 0),
+                mode="constant",
+                constant_values=0,
+            )
 
         return reduced_features, targets
