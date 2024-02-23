@@ -11,6 +11,7 @@ from ray import tune
 
 import rul_adapt
 import wandb
+from crule.run import utils
 
 FIXED_HPARAMS = ["_target_", "input_channels", "seq_len"]
 BATCH_SIZE = 128
@@ -106,6 +107,26 @@ def tune_backbone(
         fds = list(range(1, 5))
         resources = {"gpu": 0.25}
         fttp = None
+    elif dataset == "ncmapss":
+        search_space["evaluate_degraded_only"] = False
+        search_space["model"]["input_channels"] = 64  # fixes input channels
+        if backbone == "cnn":
+            search_space["model"]["seq_len"] = 30  # fixes sequence length for CNN
+        source_config = {
+            "_target_": "rul_datasets.RulDataModule",
+            "reader": {
+                "_target_": "rul_datasets.NCmapssReader",
+                "window_size": 30,
+                "padding_value": -1.0,
+            },
+            "batch_size": BATCH_SIZE,
+            "feature_extractor": utils.NcmapssAverageExtractor(
+                num_sections=2, padding_value=-1.0
+            ),
+        }
+        fds = list(range(1, 8))
+        resources = {"gpu": 0.25}
+        fttp = None
     elif dataset == "femto":
         search_space["evaluate_degraded_only"] = True
         search_space["model"]["input_channels"] = 2  # fixes input channels
@@ -164,7 +185,7 @@ def tune_backbone(
         metric="avg_rmse",  # monitor this metric
         mode="min",  # minimize the metric
         num_samples=100,
-        resources_per_trial=resources if gpu else {"cpu": 4},
+        resources_per_trial=resources if gpu else {"cpu": 8},
         scheduler=scheduler,
         config=search_space,
         progress_reporter=reporter,
@@ -237,7 +258,12 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dataset", type=str, default="cmapss")
+    parser.add_argument(
+        "--dataset",
+        type=str,
+        default="cmapss",
+        choices=["cmapss", "ncmapss", "femto", "xjtu-sy"],
+    )
     parser.add_argument("--backbone", type=str, default="cnn", choices=["cnn", "lstm"])
     parser.add_argument("--gpu", action="store_true")
     parser.add_argument("--entity", type=str, default="adapt-rul")
