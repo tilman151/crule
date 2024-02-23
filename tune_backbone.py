@@ -116,13 +116,13 @@ def tune_backbone(
             "_target_": "rul_datasets.RulDataModule",
             "reader": {
                 "_target_": "rul_datasets.NCmapssReader",
-                "window_size": 30,
                 "padding_value": -1.0,
             },
             "batch_size": BATCH_SIZE,
             "feature_extractor": utils.NcmapssAverageExtractor(
-                num_sections=2, padding_value=-1.0
+                num_sections=2, padding_value=-1.0, window_size=30
             ),
+            "window_size": 30,
         }
         fds = list(range(1, 8))
         resources = {"gpu": 0.25}
@@ -185,7 +185,7 @@ def tune_backbone(
         metric="avg_rmse",  # monitor this metric
         mode="min",  # minimize the metric
         num_samples=100,
-        resources_per_trial=resources if gpu else {"cpu": 8},
+        resources_per_trial=resources if gpu else {"cpu": 16},
         scheduler=scheduler,
         config=search_space,
         progress_reporter=reporter,
@@ -266,12 +266,12 @@ if __name__ == "__main__":
     )
     parser.add_argument("--backbone", type=str, default="cnn", choices=["cnn", "lstm"])
     parser.add_argument("--gpu", action="store_true")
-    parser.add_argument("--entity", type=str, default="adapt-rul")
+    parser.add_argument("--entity", type=str, default="rul-adapt")
     parser.add_argument("--project", type=str, default="backbone-tuning")
     parser.add_argument("--sweep_name", type=str, default=None)
     opt = parser.parse_args()
 
-    ray.init(log_to_driver=False)
+    ray.init(log_to_driver=False, local_mode=True)
     tune_backbone(
         opt.dataset, opt.backbone, opt.gpu, opt.entity, opt.project, opt.sweep_name
     )

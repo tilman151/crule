@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Tuple, Optional
 
 import numpy as np
 
@@ -19,16 +19,30 @@ class XjtuSyExtractor:
 
 
 class NcmapssAverageExtractor:
-    def __init__(self, num_sections: int, padding_value: float) -> None:
+    def __init__(
+        self, num_sections: int, padding_value: float, window_size: Optional[int] = None
+    ) -> None:
         self.num_sections = num_sections
         self.padding_value = padding_value
+        self.window_size = window_size
 
     def __call__(self, features: np.ndarray, targets: np.ndarray):
         num_samples, _, num_channels = features.shape
         reduced_features = np.empty([num_samples, self.num_sections * num_channels])
         for i, cycle in enumerate(features):
-            first_padding_idx = np.argmax(np.all(cycle == self.padding_value, axis=1))
-            sections = np.split(cycle[:first_padding_idx], 2)
+            last_padding_idx = np.argmin(np.all(cycle == self.padding_value, axis=1))
+            section_size = (len(cycle) - last_padding_idx) // self.num_sections
+            split_idx = list(range(0, len(cycle) - last_padding_idx + 1, section_size))
+            sections = np.split(cycle[last_padding_idx:], split_idx[1:-1])
             reduced_features[i] = np.concatenate([s.mean(axis=0) for s in sections])
+
+        if self.window_size is not None and num_samples < self.window_size:
+            padding = ((self.window_size - num_samples, 0), (0, 0))
+            reduced_features = np.pad(
+                reduced_features,
+                padding,
+                mode="constant",
+                constant_values=self.padding_value,
+            )
 
         return reduced_features, targets
