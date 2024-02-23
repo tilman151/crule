@@ -113,10 +113,11 @@ def run_training(config, base_overrides, fds):
             results[f"rmse_{source_fd}_{target_fd}"] = run_result
 
     # report average RMSE and RMSE for each FD
-    ray.tune.report(
-        avg_rmse=sum(results.values()) / len(results),
-        **results,
-    )
+    results = {
+        "avg_rmse": sum(results) / len(results),
+        **{f"rmse_{i}": r for i, r in enumerate(results, start=1)},
+    }
+    ray.train.report(results)
 
 
 def _normalize_analysis(df):

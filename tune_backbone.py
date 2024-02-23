@@ -248,10 +248,11 @@ def run_training(config, source_config, fds, sweep_uuid, entity, project, gpu, f
         wandb.finish()
 
     # report average RMSE and RMSE for each FD
-    tune.report(
-        avg_rmse=sum(results) / len(results),
+    results = {
+        "avg_rmse": sum(results) / len(results),
         **{f"rmse_{i}": r for i, r in enumerate(results, start=1)},
-    )
+    }
+    ray.train.report(results)
 
 
 if __name__ == "__main__":
