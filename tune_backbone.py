@@ -118,7 +118,7 @@ def tune_backbone(
                 "_target_": "rul_datasets.NCmapssReader",
                 "padding_value": -1.0,
             },
-            "batch_size": BATCH_SIZE,
+            "batch_size": 16,
             "feature_extractor": utils.NcmapssAverageExtractor(
                 num_sections=2, padding_value=-1.0, window_size=30
             ),
@@ -271,7 +271,7 @@ if __name__ == "__main__":
     parser.add_argument("--sweep_name", type=str, default=None)
     opt = parser.parse_args()
 
-    ray.init(log_to_driver=False, local_mode=True)
+    ray.init(log_to_driver=False)
     tune_backbone(
         opt.dataset, opt.backbone, opt.gpu, opt.entity, opt.project, opt.sweep_name
     )
