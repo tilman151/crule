@@ -1,0 +1,6 @@
+input_channels: 64
+units: [64, 64]
+kernel_size: 5
+fc_units: 32
+dropout: 0.2
+seq_len: 30

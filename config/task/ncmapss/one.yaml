@@ -1,0 +1,5 @@
+defaults:
+  - ncmapss_base
+
+reader:
+  fd: 1

@@ -1,0 +1,12 @@
+_target_: rul_datasets.RulDataModule
+reader:
+  _target_: rul_datasets.NCmapssReader
+  fd: ???
+  padding_value: -1.0
+batch_size: 16
+feature_extractor:
+  _target_: rul_datasets.NCmapssAverageExtractor
+  num_sections: 2
+  window_size: 30
+  padding_value: -1.0
+window_size: 30
