@@ -233,14 +233,15 @@ def run_training(config, source_config, fds, sweep_uuid, entity, project, gpu, f
         )
         logger.experiment.define_metric("val/loss", summary="best", goal="minimize")
         callbacks = [
-            pl.callbacks.EarlyStopping(monitor="val/loss", patience=20),
+            pl.callbacks.EarlyStopping(monitor="val/loss", patience=60),
             pl.callbacks.ModelCheckpoint(monitor="val/loss", save_top_k=1),
         ]
         trainer = pl.Trainer(
             accelerator="gpu" if gpu else "cpu",
-            max_epochs=100,
+            max_epochs=300,
             logger=logger,
             callbacks=callbacks,
+            log_every_n_steps=1,
         )
 
         trainer.fit(approach, dm)
