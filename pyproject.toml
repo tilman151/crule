@@ -29,6 +29,7 @@ networkx = "^3.1"
 jupyter = "^1.0.0"
 matplotlib = "^3.7.0"
 tensorboard = "^2.11.0"
+torch = "^2.0.0"
 
 [tool.poetry.group.dev.dependencies]
 black = {extras = ["d"], version = "^22.8.0"}
