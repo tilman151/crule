@@ -56,7 +56,7 @@ def run_pretraining(config, dm):
         trainer_pretraining.logger.experiment.finish()
 
     best_checkpoint = trainer_pretraining.checkpoint_callback.best_model_path
-    best_pretrained = approach_pretraining.load_from_checkpoint(best_checkpoint)
+    best_pretrained = type(approach_pretraining).load_from_checkpoint(best_checkpoint)
 
     return best_pretrained
 
