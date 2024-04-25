@@ -34,6 +34,7 @@ def pseudo_labels(config: Dict[str, Any]):
 
 
 def _get_adaption_dataloader(approach, dm):
+    approach.cpu()
     pseudo_rul = rul_adapt.approach.generate_pseudo_labels(
         dm.target, approach, dm.inductive
     )
