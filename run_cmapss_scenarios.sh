@@ -25,3 +25,16 @@ poetry run python train.py \
 done
 done
 done
+
+poetry run python train.py \
+        --multirun hydra/launcher=ray \
+        +hydra.launcher.num_gpus=0.2 \
+        +task="glob(*)" \
+        +approach="no_adaption" \
+        +feature_extractor=cnn \
+        +dataset=cmapss \
+        test=True \
+        logger.entity=$ENTITY \
+        logger.project=$PROJECT \
+       +logger.tags="[cmapss,baseline]" \
+        replications=$REPLICATIONS
