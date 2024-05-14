@@ -18,6 +18,7 @@ poetry run python train.py \
         ++target.reader.percent_broken="$BROKEN" \
         ++target.reader.percent_fail_runs="$FAILED" \
         test=True \
+        replication_type=cv \
         logger.entity=$ENTITY \
         logger.project=$PROJECT \
        +logger.tags="[ncmapss,broken-$BROKEN,failed-$FAILED]" \
