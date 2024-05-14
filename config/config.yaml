@@ -9,6 +9,7 @@ defaults:
 
 runner: ??? # crule.run.[adarul, dann, mmd, pseudo_labels]
 replications: 1
+replication_type: fixed # fixed or cv
 
 source: ???
 target: ???

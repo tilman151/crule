@@ -1,5 +1,12 @@
+import copy
+import random
+from itertools import cycle
+from typing import Any, Dict
+
 import hydra.utils
 import pytorch_lightning as pl
+from rul_datasets import NCmapssReader
+from sklearn.model_selection import train_test_split, LeavePOut
 
 
 def should_be_pretrained(config):
@@ -78,3 +85,24 @@ def get_adaption_datamodule(config):
 
 def is_wandb_logger(logger):
     return isinstance(logger, pl.loggers.WandbLogger)
+
+
+def get_cv_configs(config: Dict[str, Any]) -> Dict[str, Any]:
+    if not config["dataset"] == "ncmapss":
+        raise ValueError("Only NC-MAPSS dataset supports cross-validation")
+
+    fd = config["target"]["reader"]["fd"]
+    entity_idx = NCmapssReader(fd).run_split_dist["dev"]
+    replications = config["replications"]
+    percent_fail_runs = config["target"]["reader"]["percent_fail_runs"]
+    if percent_fail_runs is None or percent_fail_runs == 1.0:
+        cv_generator = ((entity_idx, None) for _ in range(replications))
+    else:
+        num_left_out = int(round(len(entity_idx) * (1 - percent_fail_runs)))
+        cv_generator = LeavePOut(num_left_out)
+        cv_generator = cycle(cv_generator.split(entity_idx))
+    for _, (cv_split, _) in zip(range(replications), cv_generator):
+        cv_config = copy.deepcopy(config)
+        cv_config["target"]["reader"]["percent_fail_runs"] = sorted(cv_split)
+
+        yield cv_config
