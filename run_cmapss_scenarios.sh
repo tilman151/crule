@@ -11,7 +11,7 @@ for FAILED in "${PERCENT_FAILED[@]}"; do
 poetry run python train.py \
         --multirun hydra/launcher=ray \
         +hydra.launcher.num_gpus=0.25 \
-        +task="glob(*)" \
+        +task="one2two,one2three,one2four,two2one,two2three,two2four,three2one,three2two,three2four,four2one,four2two,four2three" \
         +approach="$APPROACH" \
         +feature_extractor=cnn \
         +dataset=cmapss \
