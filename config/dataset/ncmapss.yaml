@@ -4,6 +4,7 @@
 # the finally used data is determined by the dataset-task combination
 
 dataset: ncmapss
+patience: 60
 
 pretraining:
   trainer:
@@ -19,13 +20,3 @@ training:
   trainer:
     log_every_n_steps: 1
     max_epochs: 300
-    callbacks:
-      - _target_: pytorch_lightning.callbacks.ModelCheckpoint
-        monitor: val/target/rmse/dataloader_idx_1
-        mode: min
-        save_top_k: 1
-      - _target_: pytorch_lightning.callbacks.EarlyStopping
-        monitor: val/target/rmse/dataloader_idx_1
-        mode: min
-        patience: 60
-

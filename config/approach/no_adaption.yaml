@@ -19,5 +19,5 @@ training:
       - _target_: pytorch_lightning.callbacks.EarlyStopping
         monitor: val/loss
         mode: min
-        patience: 20
+        patience: ${patience}
   approach: ???

@@ -1,13 +1,3 @@
 training:
   approach:
       lr: 0.00302
-  trainer:
-    callbacks:
-      - _target_: pytorch_lightning.callbacks.ModelCheckpoint
-        monitor: val/loss
-        mode: min
-        save_top_k: 1
-      - _target_: pytorch_lightning.callbacks.EarlyStopping
-        monitor: val/loss
-        mode: min
-        patience: 60

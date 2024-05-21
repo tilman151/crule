@@ -20,6 +20,7 @@ feature_extractor: ???
 logger: ???
 accelerator: gpu
 test: False
+patience: ???
 
 pretraining:
   trainer:
@@ -31,7 +32,7 @@ pretraining:
       - _target_: pytorch_lightning.callbacks.EarlyStopping
         monitor: val/loss
         mode: min
-        patience: 20
+        patience: ${patience}
 
 training:
   approach: ???
@@ -44,4 +45,4 @@ training:
       - _target_: pytorch_lightning.callbacks.EarlyStopping
         monitor: val/target/rmse/dataloader_idx_1
         mode: min
-        patience: 20
+        patience: ${patience}

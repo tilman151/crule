@@ -4,3 +4,4 @@
 # the finally used data is determined by the dataset-task combination
 
 dataset: xjtu-sy
+patience: 20
