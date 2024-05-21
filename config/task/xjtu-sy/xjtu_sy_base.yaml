@@ -4,7 +4,8 @@ reader:
   fd: ???
   norm_rul: True
   truncate_degraded_only: True
-batch_size: 128
+batch_size: 64
 feature_extractor:
-  _target_: crule.run.utils.XjtuSyExtractor
-  window_size: 2560
+  _target_: crule.run.utils.XjtuSyWindowExtractor
+  upper_window: 20
+  lower_window: 2560

@@ -117,7 +117,7 @@ class SimpleRayLauncher(Launcher):
     def start_ray(self) -> None:
         if not ray.is_initialized():
             log.info(f"Initializing ray")
-            ray.init(log_to_driver=False, include_dashboard=True)
+            ray.init(log_to_driver=False)
         else:
             log.info("Ray is already running.")
 
