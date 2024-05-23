@@ -19,4 +19,4 @@ pretraining:
 training:
   trainer:
     log_every_n_steps: 1
-    max_epochs: 300
+    max_epochs: 1200
