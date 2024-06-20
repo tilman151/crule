@@ -7,10 +7,9 @@ from typing import Optional
 import hydra.utils
 import pytorch_lightning as pl
 import ray
-from ray import tune
-
 import rul_adapt
 import wandb
+from ray import tune
 
 FIXED_HPARAMS = ["_target_", "input_channels", "seq_len"]
 BATCH_SIZE = 128
@@ -106,6 +105,29 @@ def tune_backbone(
         fds = list(range(1, 5))
         resources = {"gpu": 0.25}
         fttp = None
+    elif dataset == "ncmapss":
+        search_space["evaluate_degraded_only"] = False
+        search_space["model"]["input_channels"] = 64  # fixes input channels
+        if backbone == "cnn":
+            search_space["model"]["seq_len"] = 30  # fixes sequence length for CNN
+        source_config = {
+            "_target_": "rul_datasets.RulDataModule",
+            "reader": {
+                "_target_": "rul_datasets.NCmapssReader",
+                "padding_value": -1.0,
+            },
+            "batch_size": 16,
+            "feature_extractor": {
+                "_target_": "crule.run.utils.NcmapssAverageExtractor",
+                "num_sections": 2,
+                "padding_value": -1.0,
+                "window_size": 30,
+            },
+            "window_size": 30,
+        }
+        fds = list(range(1, 8))
+        resources = {"gpu": 0.2}
+        fttp = None
     elif dataset == "femto":
         search_space["evaluate_degraded_only"] = True
         search_space["model"]["input_channels"] = 2  # fixes input channels
@@ -164,7 +186,7 @@ def tune_backbone(
         metric="avg_rmse",  # monitor this metric
         mode="min",  # minimize the metric
         num_samples=100,
-        resources_per_trial=resources if gpu else {"cpu": 4},
+        resources_per_trial=resources if gpu else {"cpu": 16},
         scheduler=scheduler,
         config=search_space,
         progress_reporter=reporter,
@@ -211,15 +233,24 @@ def run_training(config, source_config, fds, sweep_uuid, entity, project, gpu, f
             tags=[sweep_uuid],
         )
         logger.experiment.define_metric("val/loss", summary="best", goal="minimize")
+        if source_config["reader"]["_target_"] == "rul_datasets.NCmapssReader":
+            max_epochs = 300
+            log_steps = 1
+            patience = 60
+        else:
+            max_epochs = 100
+            log_steps = 50
+            patience = 20
         callbacks = [
-            pl.callbacks.EarlyStopping(monitor="val/loss", patience=20),
+            pl.callbacks.EarlyStopping(monitor="val/loss", patience=patience),
             pl.callbacks.ModelCheckpoint(monitor="val/loss", save_top_k=1),
         ]
         trainer = pl.Trainer(
             accelerator="gpu" if gpu else "cpu",
-            max_epochs=100,
+            max_epochs=max_epochs,
             logger=logger,
             callbacks=callbacks,
+            log_every_n_steps=log_steps,
         )
 
         trainer.fit(approach, dm)
@@ -227,20 +258,26 @@ def run_training(config, source_config, fds, sweep_uuid, entity, project, gpu, f
         wandb.finish()
 
     # report average RMSE and RMSE for each FD
-    tune.report(
-        avg_rmse=sum(results) / len(results),
+    results = {
+        "avg_rmse": sum(results) / len(results),
         **{f"rmse_{i}": r for i, r in enumerate(results, start=1)},
-    )
+    }
+    ray.train.report(results)
 
 
 if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dataset", type=str, default="cmapss")
+    parser.add_argument(
+        "--dataset",
+        type=str,
+        default="cmapss",
+        choices=["cmapss", "ncmapss", "femto", "xjtu-sy"],
+    )
     parser.add_argument("--backbone", type=str, default="cnn", choices=["cnn", "lstm"])
     parser.add_argument("--gpu", action="store_true")
-    parser.add_argument("--entity", type=str, default="adapt-rul")
+    parser.add_argument("--entity", type=str, default="rul-adapt")
     parser.add_argument("--project", type=str, default="backbone-tuning")
     parser.add_argument("--sweep_name", type=str, default=None)
     opt = parser.parse_args()
