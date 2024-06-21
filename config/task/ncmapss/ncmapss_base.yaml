@@ -2,12 +2,7 @@ _target_: rul_datasets.RulDataModule
 reader:
   _target_: rul_datasets.NCmapssReader
   fd: ???
-  padding_value: -1.0
-  window_size: 27116  # biggest window size
+  padding_value: 0.0
+  resolution_seconds: 60
+  window_size: 451  # biggest window size
 batch_size: 16
-feature_extractor:
-  _target_: crule.run.utils.NcmapssAverageExtractor
-  num_sections: 2
-  window_size: 30
-  padding_value: -1.0
-window_size: 30
