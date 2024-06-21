@@ -107,23 +107,17 @@ def tune_backbone(
         fttp = None
     elif dataset == "ncmapss":
         search_space["evaluate_degraded_only"] = False
-        search_space["model"]["input_channels"] = 64  # fixes input channels
+        search_space["model"]["input_channels"] = 32  # fixes input channels
         if backbone == "cnn":
-            search_space["model"]["seq_len"] = 30  # fixes sequence length for CNN
+            search_space["model"]["seq_len"] = 451  # fixes sequence length for CNN
         source_config = {
             "_target_": "rul_datasets.RulDataModule",
             "reader": {
                 "_target_": "rul_datasets.NCmapssReader",
-                "padding_value": -1.0,
+                "resolution_seconds": 60,
+                "window_size": 451,
             },
             "batch_size": 16,
-            "feature_extractor": {
-                "_target_": "crule.run.utils.NcmapssAverageExtractor",
-                "num_sections": 2,
-                "padding_value": -1.0,
-                "window_size": 30,
-            },
-            "window_size": 30,
         }
         fds = list(range(1, 8))
         resources = {"gpu": 0.2}
