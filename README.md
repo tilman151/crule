@@ -3,8 +3,7 @@
 [![Master](https://github.com/tilman151/crule/actions/workflows/on_push.yaml/badge.svg)](https://github.com/tilman151/rul-adapt/actions/workflows/on_push.yaml)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-This repository accompanies the paper "From Inconsistency to Unity: A Benchmarking
-Framework for RUL Domain Adaptation" currently under review.
+This repository accompanies the paper "[From Inconsistency to Unity: Benchmarking Deep Learning-Based Unsupervised Domain Adaptation for RUL](https://doi.org/10.1109/TASE.2025.3528469)" selected for publication in IEEE Transactions on Automation Science and Engineering.
 It contains a benchmark suite for domain adaptation approaches for remaining useful life estimation, including hyperparameter search.
 
 Please refer to [rul-datasets](https://www.github.com/tilman151/rul-adapt) for the included datasets and [rul-adapt](https://www.github.com/tilman151/rul-adapt) for the included approaches.
