@@ -2,7 +2,7 @@ import json
 import os.path
 from concurrent.futures import ThreadPoolExecutor
 from functools import partial
-from typing import Tuple, Optional, Dict, Any, List
+from typing import Tuple, Optional, Dict, Any, List, cast
 
 import networkx as nx  # type: ignore[import]
 import pandas as pd
@@ -32,7 +32,7 @@ def get_best_tune_run(run_path: str) -> Dict[str, Any]:
         [c for c in table.columns if c.startswith("config/")]
     ].to_dict()
 
-    return best_trial
+    return cast(Dict[str, Any], best_trial)
 
 
 def load_trials_table(run_path: str) -> pd.DataFrame:
